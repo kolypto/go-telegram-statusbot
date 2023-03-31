@@ -1,0 +1,24 @@
+/go-telegram-statusbot
+/session.json
+
+# === Common === #
+
+# Hidden files: IDE configs, etc
+/.*
+!/.envrc
+!/.github
+!.gitignore
+!.gitkeep
+
+# Generated files
+*.out
+*.log
+
+# Temporary files
+*~
+*.tmp
+*.tmp.*
+*.bak
+*.backup
+*.DS_Store
+Thumbs.db
