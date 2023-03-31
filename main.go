@@ -14,6 +14,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	listenAddr, ok := os.LookupEnv("LISTEN")
 	if !ok {
 		panic(errors.Wrap(err, "SESSION_DIR not set or invalid"))

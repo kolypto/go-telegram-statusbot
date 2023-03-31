@@ -12,7 +12,7 @@ $ go build
 Start server:
 
 ```console
-$ APP_ID= APP_HASH= SESSION_FILE=session.json LISTEN=:8080 ./go-telegram-statusbot
+$ APP_ID= APP_HASH= SESSION_FILE=./session.json LISTEN=:8080 ./go-telegram-statusbot
 ```
 
 Now make HTTP requests:
