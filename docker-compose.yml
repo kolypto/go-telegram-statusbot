@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  bot:
+    image: "kolypto/go-telegram-statusbot"
+    container_name: go-telegram-statusbot
+    build:
+      context: .
+    environment:
+      APP_ID: ${APP_ID}
+      APP_HASH: ${APP_HASH}
+    ports:
+      - "${PORT-8080}:8080"
+    volumes:
+      - telegram-data:/app/data/
+    restart: unless-stopped
+
+volumes:
+  telegram-data:
