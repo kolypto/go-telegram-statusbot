@@ -27,6 +27,7 @@ func NewTelegramClient(api_id int, api_hash string, session_file string) Telegra
 	return newTelegramClient(
 		telegram.NewClient(api_id, api_hash, telegram.Options{
 			SessionStorage: &session.FileStorage{Path: session_file},
+			Device:         deviceConfig,
 		}),
 	)
 }
@@ -34,7 +35,9 @@ func NewTelegramClient(api_id int, api_hash string, session_file string) Telegra
 // Create a new Telegram client from environment:
 // APP_ID, APP_HASH, SESSION_DIR or SESSION_FILE
 func NewTelegramClientFromEnvironment() (TelegramClient, error) {
-	client, err := telegram.ClientFromEnvironment(telegram.Options{})
+	client, err := telegram.ClientFromEnvironment(telegram.Options{
+		Device: deviceConfig,
+	})
 	if err != nil {
 		return TelegramClient{}, errors.Wrapf(err, "failed to create Telegram Client")
 	}
@@ -76,6 +79,11 @@ func (c TelegramClient) WaitServerReady() {
 }
 
 // ---
+
+// Default device config for the Telegram client
+var deviceConfig = telegram.DeviceConfig{
+	DeviceModel: "Go StatusBot",
+}
 
 // Create a new Telegram client
 func newTelegramClient(client *telegram.Client) TelegramClient {

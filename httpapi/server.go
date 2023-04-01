@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-faster/errors"
 	"github.com/kolypto/go-telegram-statusbot/telegram"
 )
 
@@ -19,14 +21,19 @@ func StartServer(ctx context.Context, bind string, client telegram.TelegramClien
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.Timeout(10 * time.Second))
 
-	router.Get("/set-status/{status}", func(w http.ResponseWriter, r *http.Request) {
-		// Get DocumentID
+	router.Post("/set-status/{status}", func(w http.ResponseWriter, r *http.Request) {
+		// Get status as a known name
 		status := chi.URLParam(r, "status")
-		documentId := emojiStatuses[status]
+		documentId, err := getEmojiDocumentId(status)
+		if err != nil {
+			log.Printf("Failed to parse status: %v", err)
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
 
 		// Set status
 		log.Printf("setting status: %v (%v)", documentId, status)
-		err := client.SetEmojiStatus(r.Context(), documentId)
+		err = client.SetEmojiStatus(r.Context(), documentId)
 
 		// Handle errors
 		if err != nil {
@@ -49,6 +56,24 @@ func StartServer(ctx context.Context, bind string, client telegram.TelegramClien
 	return server.ListenAndServe()
 }
 
+// Parse "status" as either icon name or int DocumentID
+func getEmojiDocumentId(status string) (int64, error) {
+	// Try to get it from the known statuses map
+	documentId, ok := emojiStatuses[status]
+	if ok {
+		return documentId, nil
+	}
+
+	// If not known, attempt parsing it as an integer
+	n, err := fmt.Sscan(status, &documentId)
+	fmt.Printf("Parsing %v: %q n=%v %v\n", status, documentId, n, err)
+	if err != nil {
+		return documentId, errors.Wrapf(err, "failed to parse icon DocumentId")
+	} else {
+		return documentId, nil
+	}
+}
+
 // Known statuses and their DocumentIDs
 var emojiStatuses = map[string]int64{
 	"icq-online":  5276100343673924208,
@@ -63,4 +88,5 @@ var emojiStatuses = map[string]int64{
 	"pedestrian":  5276300811272465264,
 	"headphones":  5276308662472682873,
 	"dnd":         5278531947998488827,
+	"toilet":      5278385622757681011,
 }
