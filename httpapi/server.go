@@ -65,8 +65,7 @@ func getEmojiDocumentId(status string) (int64, error) {
 	}
 
 	// If not known, attempt parsing it as an integer
-	n, err := fmt.Sscan(status, &documentId)
-	fmt.Printf("Parsing %v: %q n=%v %v\n", status, documentId, n, err)
+	_, err := fmt.Sscan(status, &documentId)
 	if err != nil {
 		return documentId, errors.Wrapf(err, "failed to parse icon DocumentId")
 	} else {
